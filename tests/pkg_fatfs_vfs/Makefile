@@ -1,4 +1,3 @@
-APPLICATION = pkg_fatfs_vfs
 include ../Makefile.tests_common
 
 USEMODULE += fatfs_vfs
@@ -24,10 +23,6 @@ ifeq ($(BOARD),native)
 else
   USEMODULE += mtd_sdcard
 endif
-
-BOARD_INSUFFICIENT_MEMORY := arduino-duemilanove arduino-leonardo arduino-nano \
-                             arduino-uno msb-430 msb-430h nucleo-f031k6 telosb \
-                             wsn430-v1_3b wsn430-v1_4 z1
 
 # this list is composed of boards with sufficient memory and support spi/gpio + native
 BOARD_WHITELIST := airfy-beacon arduino-due arduino-duemilanove \

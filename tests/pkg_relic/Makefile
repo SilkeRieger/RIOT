@@ -6,12 +6,16 @@ BOARD_BLACKLIST :=  arduino-duemilanove \
                     arduino-mega2560 \
                     arduino-nano \
                     arduino-uno \
+                    atmega256rfr2-xpro \
+                    atmega328p \
                     chronos \
+                    derfmega128 \
+                    derfmega256 \
                     f4vi1 \
                     hifive1 \
                     hifive1b \
-                    jiminy-mega256rfr2 \
                     mega-xplained \
+                    microduino-corerf \
                     msb-430 \
                     msb-430h \
                     msbiot \
@@ -24,15 +28,6 @@ BOARD_BLACKLIST :=  arduino-duemilanove \
                     wsn430-v1_4 \
                     z1 \
                     #
-
-BOARD_INSUFFICIENT_MEMORY :=    i-nucleo-lrwan1 \
-                                nucleo-f030r8 \
-                                nucleo-f031k6 \
-                                nucleo-f042k6 \
-                                nucleo-l031k6 \
-                                nucleo-l053r8 \
-                                stm32l0538-disco \
-                                #
 
 CFLAGS += -DTHREAD_STACKSIZE_MAIN=\(5*THREAD_STACKSIZE_DEFAULT\)
 

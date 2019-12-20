@@ -88,6 +88,7 @@ static const uart_conf_t uart_config[] = {
 
 /* interrupt function name mapping */
 #define UART_0_ISR          isr_sercom2_2
+#define UART_0_ISR_TX       isr_sercom2_0
 
 #define UART_NUMOF          ARRAY_SIZE(uart_config)
 /** @} */
@@ -138,7 +139,6 @@ static const i2c_conf_t i2c_config[] = {
  * @name    RTC configuration
  * @{
  */
-#define RTC_NUMOF           (1)
 #define EXTERNAL_OSC32_SOURCE                    1
 #define INTERNAL_OSC32_SOURCE                    0
 #define ULTRA_LOW_POWER_INTERNAL_OSC_SOURCE      0
@@ -150,7 +150,6 @@ static const i2c_conf_t i2c_config[] = {
  */
 #define RTT_FREQUENCY       (32768U)
 #define RTT_MAX_VALUE       (0xffffffffU)
-#define RTT_NUMOF           (1)
 /** @} */
 
 /**

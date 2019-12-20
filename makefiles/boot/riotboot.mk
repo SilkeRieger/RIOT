@@ -13,13 +13,9 @@ BINDIR_APP = $(BINDIR)/$(APPLICATION)
 #
 export SLOT0_OFFSET SLOT0_LEN SLOT1_OFFSET SLOT1_LEN
 
-# Mandatory APP_VER, set to epoch by default, or "0" for CI build
-ifeq (1, RIOT_CI_BUILD)
-  APP_VER ?= 0
-else
-  EPOCH := $(shell date +%s)
-  APP_VER ?= $(EPOCH)
-endif
+# Mandatory APP_VER, set to epoch by default
+EPOCH := $(shell date +%s)
+APP_VER ?= $(EPOCH)
 
 # Final target for slot 0 with riot_hdr
 SLOT0_RIOT_BIN = $(BINDIR_APP)-slot0.$(APP_VER).riot.bin
@@ -147,6 +143,11 @@ riotboot/flash: riotboot/flash-slot0 riotboot/flash-bootloader
 # Target 'all' will generate the combined file directly.
 # It also makes 'flash' and 'flash-only' work without specific command.
 FLASHFILE = $(RIOTBOOT_EXTENDED_BIN)
+
+# include suit targets
+ifneq (,$(filter suit_v4, $(USEMODULE)))
+  include $(RIOTMAKE)/suit.v4.inc.mk
+endif
 
 else
 riotboot:

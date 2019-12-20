@@ -77,6 +77,15 @@ extern "C" {
 #endif
 
 /**
+ * @brief   The maximum number of BLE connections that can be open concurrently
+ *
+ * @note    This value *must* be <= MYNEWT_VAL_BLE_MAX_CONNECTIONS
+ */
+#ifndef NIMBLE_NETIF_MAX_CONN
+#define NIMBLE_NETIF_MAX_CONN       (MYNEWT_VAL_BLE_MAX_CONNECTIONS)
+#endif
+
+/**
  * @brief   Default L2CAP channel ID to use
  */
 #ifndef NIMBLE_NETIF_CID
@@ -141,8 +150,11 @@ enum {
  *
  * @param[in] handle        handle to the connection that triggered the event
  * @param[in] event         type of the event
+ * @param[in] addr          BLE address of the peer in the effected connection
  */
-typedef void(*nimble_netif_eventcb_t)(int handle, nimble_netif_event_t event);
+typedef void(*nimble_netif_eventcb_t)(int handle,
+                                      nimble_netif_event_t event,
+                                      const uint8_t *addr);
 
 /**
  * @brief   Initialize the netif implementation, spawns the netif thread

@@ -119,7 +119,6 @@ static const i2c_conf_t i2c_config[] = {
  * @name    RTC configuration
  * @{
  */
-#define RTC_NUMOF                               (1)
 #define EXTERNAL_OSC32_SOURCE                   1
 #define INTERNAL_OSC32_SOURCE                   0
 #define ULTRA_LOW_POWER_INTERNAL_OSC_SOURCE     0
@@ -131,18 +130,18 @@ static const i2c_conf_t i2c_config[] = {
  */
 #define RTT_FREQUENCY                           (32768U)
 #define RTT_MAX_VALUE                           (0xffffffffU)
-#define RTT_NUMOF                               (1)
 /** @} */
 
 /**
  * @name ADC Configuration
  * @{
  */
-#define ADC_NUMOF                               (5U)
 
-/* ADC 0 Default values */
-#define ADC_0_CLK_SOURCE                        0 /* GCLK_GENERATOR_0 */
-#define ADC_0_PRESCALER                         ADC_CTRLB_PRESCALER_DIV256
+/* ADC Default values */
+#define ADC_PRESCALER                           ADC_CTRLB_PRESCALER_DIV256
+
+#define ADC_NEG_INPUT                           ADC_INPUTCTRL_MUXNEG(0x18u)
+#define ADC_REF_DEFAULT                         ADC_REFCTRL_REFSEL_INTVCC2
 
 static const adc_conf_chan_t adc_channels[] = {
     /* port, pin, muxpos */
@@ -153,8 +152,7 @@ static const adc_conf_chan_t adc_channels[] = {
     {GPIO_PIN(PA, 2), ADC_INPUTCTRL_MUXPOS(ADC_INPUTCTRL_MUXPOS_AIN0)}
 };
 
-#define ADC_0_NEG_INPUT                         ADC_INPUTCTRL_MUXNEG(0x18u)
-#define ADC_0_REF_DEFAULT                       ADC_REFCTRL_REFSEL_INTVCC2
+#define ADC_NUMOF                               ARRAY_SIZE(adc_channels)
 /** @} */
 
 #ifdef __cplusplus

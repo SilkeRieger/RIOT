@@ -489,7 +489,10 @@ typedef struct {
     gpio_t sclk_pin;        /**< SCLK pin */
     gpio_t cs_pin;          /**< HWCS pin, set to GPIO_UNDEF if not mapped */
 #ifndef CPU_FAM_STM32F1
-    gpio_af_t af;           /**< pin alternate function */
+    gpio_af_t mosi_af;      /**< MOSI pin alternate function */
+    gpio_af_t miso_af;      /**< MISO pin alternate function */
+    gpio_af_t sclk_af;      /**< SCLK pin alternate function */
+    gpio_af_t cs_af;        /**< HWCS pin alternate function */
 #endif
     uint32_t rccmask;       /**< bit in the RCC peripheral enable register */
     uint8_t apbbus;         /**< APBx bus the device is connected to */
@@ -501,6 +504,7 @@ typedef struct {
 #endif
 } spi_conf_t;
 
+#ifndef DOXYGEN
 /**
  * @brief   Default mapping of I2C bus speed values
  * @{
@@ -520,6 +524,7 @@ typedef enum {
 #endif
 } i2c_speed_t;
 /** @} */
+#endif /* ndef DOXYGEN */
 
 /**
  * @brief   Structure for I2C configuration data
@@ -600,6 +605,22 @@ void periph_clk_en(bus_t bus, uint32_t mask);
  * @param[in] bus       bus the peripheral is connected to
  * @param[in] mask      bit in the RCC enable register
  */
+void periph_lpclk_dis(bus_t bus, uint32_t mask);
+
+/**
+ * @brief   Enable the given peripheral clock in low power mode
+ *
+ * @param[in] bus       bus the peripheral is connected to
+ * @param[in] mask      bit in the RCC enable register
+ */
+void periph_lpclk_en(bus_t bus, uint32_t mask);
+
+/**
+ * @brief   Disable the given peripheral clock in low power mode
+ *
+ * @param[in] bus       bus the peripheral is connected to
+ * @param[in] mask      bit in the RCC enable register
+ */
 void periph_clk_dis(bus_t bus, uint32_t mask);
 
 /**
@@ -642,7 +663,7 @@ void dma_init(void);
  * @param[in]  mode    DMA mode
  * @param[in]  flags   DMA configuration
  *
- * @return < 0 on error, the number of transfered bytes otherwise
+ * @return < 0 on error, the number of transferred bytes otherwise
  */
 int dma_transfer(dma_t dma, int chan, const volatile void *src, volatile void *dst, size_t len,
                  dma_mode_t mode, uint8_t flags);

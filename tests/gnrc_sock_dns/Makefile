@@ -2,15 +2,6 @@ include ../Makefile.tests_common
 
 RIOTBASE ?= $(CURDIR)/../..
 
-BOARD_INSUFFICIENT_MEMORY := arduino-duemilanove arduino-leonardo \
-                             arduino-mega2560 arduino-nano \
-                             arduino-uno chronos hifive1 hifive1b i-nucleo-lrwan1 \
-                             mega-xplained msb-430 msb-430h \
-                             nucleo-f042k6 nucleo-f031k6 \
-                             nucleo-f030r8 nucleo-f303k8 nucleo-l053r8 \
-                             nucleo-l031k6 stm32f0discovery stm32l0538-disco \
-                             thingy52 telosb \
-                             waspmote-pro wsn430-v1_3b wsn430-v1_4 z1
 # chronos, hamilton and ruuvitag boards don't support ethos
 BOARD_BLACKLIST := chronos hamilton ruuvitag
 
@@ -22,12 +13,8 @@ USEMODULE += gnrc_ipv6_default
 USEMODULE += gnrc_ipv6_nib_dns
 # use Ethernet as link-layer protocol
 ifeq (native,$(BOARD))
-  USEMODULE += netdev_tap
-
   TERMFLAGS ?= $(TAP)
 else
-  USEMODULE += stdio_ethos
-
   ETHOS_BAUDRATE ?= 115200
   CFLAGS += -DETHOS_BAUDRATE=$(ETHOS_BAUDRATE)
   TERMDEPS += ethos
