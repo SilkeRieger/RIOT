@@ -33,7 +33,37 @@
  * @name    Clock system configuration
  * @{
  */
-#define CLOCK_CORECLOCK     (32000000U)     /* desired core clock frequency, 32MHz */
+/*
+ * 0: use internal 32KHz RCOSC
+ * 1: use external 32KHz XOSC
+ */
+#ifndef SYS_CTRL_OSC32K_USE_XTAL
+#define SYS_CTRL_OSC32K_USE_XTAL        (1)
+#endif
+/*
+ * 0: use internal 16MHz RCOSC
+ * 1: use external 32MHz XOSC, required for RF operation
+ */
+#ifndef SYS_CTRL_OSC_USE_XTAL
+#define SYS_CTRL_OSC_USE_XTAL           (1)
+#endif
+
+#if SYS_CTRL_OSC_USE_XTAL
+#define CLOCK_OSC           (XOSC32M_FREQ)
+#else
+#define CLOCK_OSC           (RCOSC16M_FREQ)
+#endif
+
+#if SYS_CTRL_OSC32K_USE_XTAL
+#define CLOCK_OSC32K        (XOSC32K_FREQ)    /* XCOSC frequency */
+#else
+#define CLOCK_OSC32K        (RCOSC32K_FREQ)    /* XCOSC frequency */
+#endif
+
+/* System clock frequency 32MHz */
+#define CLOCK_CORECLOCK     (CLOCK_OSC)
+/* I/O clock rate setting 16MHz */
+#define CLOCK_IO            (CLOCK_OSC / 2)
 /** @} */
 
 /**
@@ -95,8 +125,10 @@ static const uart_conf_t uart_config[] = {
         .dev      = UART0_BASEADDR,
         .rx_pin   = GPIO_PIN(0, 0),
         .tx_pin   = GPIO_PIN(0, 1),
+#ifdef MODULE_PERIPH_UART_HW_FC
         .cts_pin  = GPIO_UNDEF,
         .rts_pin  = GPIO_UNDEF
+#endif
     }
 };
 

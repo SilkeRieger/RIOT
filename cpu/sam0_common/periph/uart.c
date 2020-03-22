@@ -80,6 +80,19 @@ int uart_init(uart_t uart, uint32_t baudrate, uart_rx_cb_t rx_cb, void *arg)
     gpio_set(uart_config[uart].tx_pin);
     gpio_init_mux(uart_config[uart].tx_pin, uart_config[uart].mux);
 
+#ifdef MODULE_PERIPH_UART_HW_FC
+    /* If RTS/CTS needed, enable them */
+    if (uart_config[uart].tx_pad == UART_PAD_TX_0_RTS_2_CTS_3) {
+        /* Ensure RTS is defined */
+        if (uart_config[uart].rts_pin != GPIO_UNDEF) {
+            gpio_init_mux(uart_config[uart].rts_pin, uart_config[uart].mux);
+        }
+        /* Ensure CTS is defined */
+        if (uart_config[uart].cts_pin != GPIO_UNDEF) {
+            gpio_init_mux(uart_config[uart].cts_pin, uart_config[uart].mux);
+        }
+    }
+#endif
     /* enable peripheral clock */
     sercom_clk_en(dev(uart));
 
@@ -103,7 +116,7 @@ int uart_init(uart_t uart, uint32_t baudrate, uart_rx_cb_t rx_cb, void *arg)
     }
 
     /* calculate and set baudrate */
-    uint32_t baud = ((((uint32_t)CLOCK_CORECLOCK * 8) / baudrate) / 16);
+    uint32_t baud = (((sam0_gclk_freq(uart_config[uart].gclk_src) * 8) / baudrate) / 16);
     dev(uart)->BAUD.FRAC.FP = (baud % 8);
     dev(uart)->BAUD.FRAC.BAUD = (baud / 8);
 

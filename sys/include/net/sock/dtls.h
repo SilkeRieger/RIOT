@@ -461,6 +461,13 @@
 #include <stdlib.h>
 #include <sys/types.h>
 
+/* net/sock/async/types.h included by net/sock.h needs to re-typedef the
+ * `sock_dtls_t` to prevent cyclic includes */
+#if defined (__clang__)
+# pragma clang diagnostic push
+# pragma clang diagnostic ignored "-Wtypedef-redefinition"
+#endif
+
 #include "net/sock.h"
 #include "net/sock/udp.h"
 #include "net/credman.h"
@@ -499,6 +506,10 @@ enum {
  *          an implementation-specific `sock_dtls_types.h`.
  */
 typedef struct sock_dtls sock_dtls_t;
+
+#if defined (__clang__)
+# pragma clang diagnostic pop
+#endif
 
 /**
  * @brief Information about a created session.
@@ -606,6 +617,10 @@ ssize_t sock_dtls_recv(sock_dtls_t *sock, sock_dtls_session_t *remote,
  *
  * @note Function may block until a session is created if there is no
  *       existing session with @p remote.
+ *
+ * @note Initiating a session through this function will require
+ * @ref sock_dtls_recv() called from another thread to receive the handshake
+ * messages.
  *
  * @return The number of bytes sent on success
  * @return  -EADDRINUSE, if sock_dtls_t::udp_sock has no local end-point.

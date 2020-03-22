@@ -1,10 +1,11 @@
 MATCH_MAKE_VERSION = 4.%
 
+MAKEFLAGS += --no-builtin-rules
+
 ifeq (,$(filter $(MATCH_MAKE_VERSION),$(MAKE_VERSION)))
-  $(warning GNU Make $(MAKE_VERSION) is DEPRECATED in RIOT. Support for \
-	    versions less than $(MATCH_MAKE_VERSION) will be removed in \
-	    release 2020.01. Please upgrade your system to use GNU Make \
-	    $(MATCH_MAKE_VERSION) or later.)
+  $(error GNU Make $(MAKE_VERSION) is not supported by RIOT since release \
+      2020.01. Please upgrade your system to use GNU Make \
+      $(MATCH_MAKE_VERSION) or later.)
 endif
 
 # 'Makefile.include' directory, must be evaluated before other 'include'
@@ -158,6 +159,20 @@ else
 
 all: link
 
+# Include Board and CPU configuration, if BOARD is not found in BOARDSDIR
+# e.g. when set by the environment fallback to searching in RIOTBOARD
+ifeq (,$(wildcard $(BOARDSDIR)/$(BOARD)/.))
+  ifneq ($(RIOTBOARD),$(BOARDSDIR))
+    # The specified board $(BOARD) was not found in $(BOARDSDIR) fallback to RIOTBOARD
+    BOARDSDIR = $(RIOTBOARD)
+  endif
+  ifeq ($(RIOTBOARD),$(BOARDSDIR))
+    ifeq (,$(wildcard $(BOARDSDIR)/$(BOARD)/.))
+      $(error The specified board $(BOARD) does not exist.)
+    endif
+  endif
+endif
+
 include $(RIOTMAKE)/info.inc.mk
 
 # Static code analysis tools provided by LLVM
@@ -262,9 +277,6 @@ LAZYSPONGE_FLAGS ?= $(if $(filter 1,$(QUIET)),,--verbose)
 
 ifeq (, $(APPLICATION))
     $(error An application name must be specified as APPLICATION.)
-endif
-ifneq (0,$(shell test -d $(BOARDSDIR)/$(BOARD); echo $$?))
-    $(error The specified board $(BOARD) does not exist.)
 endif
 
 # Use TOOLCHAIN environment variable to select the toolchain to use.
@@ -409,7 +421,7 @@ BASELIBS += $(APPDEPS)
 
 
 # add extra include paths for packages in $(USEMODULE)
-export USEMODULE_INCLUDES =
+USEMODULE_INCLUDES =
 
 include $(RIOTBASE)/sys/Makefile.include
 include $(RIOTBASE)/drivers/Makefile.include
@@ -467,6 +479,9 @@ endif
 ELFFILE ?= $(BINDIR)/$(APPLICATION).elf
 HEXFILE ?= $(ELFFILE:.elf=.hex)
 BINFILE ?= $(ELFFILE:.elf=.bin)
+
+# include basic suit-tool and key handling
+include $(RIOTMAKE)/suit.base.inc.mk
 
 # include bootloaders support. It should be included early to allow using
 # variables defined in `riotboot.mk` for `FLASHFILE` before it is evaluated.
@@ -674,7 +689,7 @@ term: $(TERMDEPS)
 
 # Term without the pyterm added logging
 # PYTERMFLAGS must be exported for `jlink.sh term-rtt`.
-cleanterm: export PYTERMFLAGS += --noprefix --no-repeat-command-on-empty-line
+cleanterm: export PYTERMFLAGS += --no-reconnect --noprefix --no-repeat-command-on-empty-line
 cleanterm: $(TERMDEPS)
 	$(call check_cmd,$(TERMPROG),Terminal program)
 	$(TERMPROG) $(TERMFLAGS)

@@ -1,4 +1,5 @@
 ifneq (,$(filter riotboot,$(FEATURES_USED)))
+ifneq (1,$(RIOTBOOT_BUILD))
 
 .PHONY: riotboot/flash riotboot/flash-bootloader riotboot/flash-slot0 riotboot/flash-slot1 riotboot/bootloader/%
 
@@ -145,8 +146,8 @@ riotboot/flash: riotboot/flash-slot0 riotboot/flash-bootloader
 FLASHFILE = $(RIOTBOOT_EXTENDED_BIN)
 
 # include suit targets
-ifneq (,$(filter suit_v4, $(USEMODULE)))
-  include $(RIOTMAKE)/suit.v4.inc.mk
+ifneq (,$(filter suit, $(USEMODULE)))
+  include $(RIOTMAKE)/suit.inc.mk
 endif
 
 else
@@ -154,4 +155,5 @@ riotboot:
 	$(Q)echo "error: riotboot feature not selected! (try FEATURES_REQUIRED += riotboot)"
 	$(Q)false
 
+endif # (1,$(RIOTBOOT_BUILD))
 endif # (,$(filter riotboot,$(FEATURES_USED)))
