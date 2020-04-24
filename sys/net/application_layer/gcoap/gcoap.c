@@ -33,7 +33,7 @@
 #include "random.h"
 #include "thread.h"
 
-#define ENABLE_DEBUG (0)
+#define ENABLE_DEBUG (1)
 #include "debug.h"
 
 /* Return values used by the _find_resource function. */
@@ -683,6 +683,46 @@ int gcoap_req_init(coap_pkt_t *pdu, uint8_t *buf, size_t len,
     coap_pkt_init(pdu, buf, len - CONFIG_GCOAP_REQ_OPTIONS_BUF, res);
     if (path != NULL) {
         res = coap_opt_add_uri_path(pdu, path);
+    }
+    return (res > 0) ? 0 : res;
+}
+
+/**
+ * @author Silke Rieger
+ */
+int gcoap_req_init_observe(coap_pkt_t *pdu, uint8_t *buf, size_t len,
+                   unsigned code, const char *path, unsigned is_observe)
+{
+    assert((path == NULL) || (path[0] == '/'));
+
+    pdu->hdr = (coap_hdr_t *)buf;
+
+    /* generate token */
+#if GCOAP_TOKENLEN
+    uint8_t token[GCOAP_TOKENLEN];
+    for (size_t i = 0; i < GCOAP_TOKENLEN; i += 4) {
+        uint32_t rand = random_uint32();
+        memcpy(&token[i],
+               &rand,
+               (GCOAP_TOKENLEN - i >= 4) ? 4 : GCOAP_TOKENLEN - i);
+    }
+    uint16_t msgid = (uint16_t)atomic_fetch_add(&_coap_state.next_message_id, 1);
+    ssize_t res = coap_build_hdr(pdu->hdr, COAP_TYPE_NON, &token[0], CONFIG_GCOAP_TOKENLEN,
+                                 code, msgid);
+#else
+    uint16_t msgid = (uint16_t)atomic_fetch_add(&_coap_state.next_message_id, 1);
+    ssize_t res = coap_build_hdr(pdu->hdr, COAP_TYPE_NON, NULL, CONFIG_GCOAP_TOKENLEN,
+                                 code, msgid);
+#endif
+
+    coap_pkt_init(pdu, buf, len - CONFIG_GCOAP_REQ_OPTIONS_BUF, res);
+    printf("Optionslänge: %d \n", pdu->options_len);
+    if (is_observe) {
+    	res = coap_opt_add_uint(pdu, COAP_OPT_OBSERVE, (uint32_t) 0);
+    }
+    printf("Optionslänge: %d \n", pdu->options_len);
+    if (path != NULL) {
+        res = coap_opt_add_string(pdu, COAP_OPT_URI_PATH, path, '/');
     }
     return (res > 0) ? 0 : res;
 }

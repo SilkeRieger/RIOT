@@ -366,10 +366,23 @@ int gcoap_cli_cmd(int argc, char **argv)
     int apos = 2;       /* position of address argument */
     /* ping must be confirmable */
     unsigned msg_type = (!code_pos ? COAP_TYPE_CON : COAP_TYPE_NON);
-    if (argc > apos && strcmp(argv[apos], "-c") == 0) {
-        msg_type = COAP_TYPE_CON;
-        apos++;
-    }
+    unsigned is_observe = 0;
+    	if (argc > apos) {
+    		while(apos < argc) {
+    			if (strcmp(argv[apos], "-c") == 0) {
+    				msg_type = COAP_TYPE_CON;
+    				apos++;
+    				continue;
+    			}
+    			/* Check, if observing option is set */
+    			else if (strcmp(argv[apos], "-o") == 0) {
+    				is_observe = 1;
+    				apos++;
+    				continue;
+    			}
+    			break;
+    		}
+    	}
 
     if (((argc == apos + 2) && (code_pos == 0)) ||    /* ping */
         ((argc == apos + 3) && (code_pos == 1)) ||    /* get */
@@ -389,7 +402,8 @@ int gcoap_cli_cmd(int argc, char **argv)
             gcoap_req_init(&pdu, &buf[0], CONFIG_GCOAP_PDU_BUF_SIZE, code_pos, NULL);
         }
         else{
-            gcoap_req_init(&pdu, &buf[0], CONFIG_GCOAP_PDU_BUF_SIZE, code_pos, uri);
+        	gcoap_req_init_observe(&pdu, &buf[0], CONFIG_GCOAP_PDU_BUF_SIZE, code_pos + 1, argv[apos + 2], is_observe);
+
         }
         coap_hdr_set_type(pdu.hdr, msg_type);
 

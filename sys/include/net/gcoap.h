@@ -752,6 +752,9 @@ void gcoap_register_listener(gcoap_listener_t *listener);
 int gcoap_req_init(coap_pkt_t *pdu, uint8_t *buf, size_t len,
                    unsigned code, const char *path);
 
+int gcoap_req_init_observe(coap_pkt_t *pdu, uint8_t *buf, size_t len,
+                   unsigned code, const char *path, unsigned is_observe);
+
 /**
  * @brief   Finishes formatting a CoAP PDU after the payload has been written
  *
