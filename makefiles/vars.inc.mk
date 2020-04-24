@@ -17,6 +17,7 @@ export CPU_FAM               # An intermediate identifier between CPU and CPU_MO
 export MCU                   # The MCU, set by the board's Makefile.include, or defaulted to the same value as CPU.
 export INCLUDES              # The extra include paths, set by the various Makefile.include files.
 export CXXINCLUDES           # The extra include paths for c++, set by the various Makefile.include files.
+export NATIVEINCLUDES        # The native include paths, set by the various native Makefile.include files.
 
 export USEMODULE             # Sys Module dependencies of the application. Set in the application's Makefile.
 export USEPKG                # Pkg dependencies (third party modules) of the application. Set in the application's Makefile.
@@ -104,5 +105,7 @@ export UNZIP_HERE            # Use `cd $(SOME_FOLDER) && $(UNZIP_HERE) $(SOME_FI
 
 export LAZYSPONGE            # Command saving stdin to a file only on content update.
 export LAZYSPONGE_FLAGS      # Parameters supplied to LAZYSPONGE.
+
+export AFL_FLAGS             # Additional command-line flags passed to afl during fuzzing.
 
 # LOG_LEVEL                  # Logging level as integer (NONE: 0, ERROR: 1, WARNING: 2, INFO: 3, DEBUG: 4, default: 3)

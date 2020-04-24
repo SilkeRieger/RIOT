@@ -62,26 +62,48 @@ typedef void (*at86rf215_batmon_cb_t)(void *arg);
 #define AT86RF215_MAX_PKT_LENGTH        (2047)
 
 /**
+ * @defgroup drivers_at86rf215_config     AT86RF215 driver compile configuration
+ * @ingroup config_drivers_netdev
+ * @{
+ */
+/**
  * @brief   Set to 1 if the clock output of the AT86RF215 is used
  *          as a clock source on the board.
  *          Otherwise it is turned off to save energy.
  */
-#ifndef AT86RF215_USE_CLOCK_OUTPUT
-#define AT86RF215_USE_CLOCK_OUTPUT      (0)
+#ifdef DOXYGEN
+#define CONFIG_AT86RF215_USE_CLOCK_OUTPUT
 #endif
+
+#if defined(DOXYGEN) && !defined(CONFIG_AT86RF215_TRIM_VAL)
+/**
+ * @brief   Trim value for the external crystal oscillator.
+ *
+ *          Each increment adds 300nF capacitance between the crystal oscillator pins
+ *          TCXO and XTAL2.
+ *
+ *          Range: 0..15
+ *
+ *          Use in conjunction with @see CONFIG_AT86RF215_USE_CLOCK_OUTPUT and a frequency
+ *          meter connected to the clock output pin of the AT86RF215.
+ *          Tweak the value until the measured clock output matches 26 MHz the best.
+ */
+#define CONFIG_AT86RF215_TRIM_VAL              (0)
+#endif
+/** @} */
 
 /**
  * @name    Channel configuration
  * @{
  */
-#define AT86RF215_DEFAULT_CHANNEL        (IEEE802154_DEFAULT_CHANNEL)
-#define AT86RF215_DEFAULT_SUBGHZ_CHANNEL (IEEE802154_DEFAULT_SUBGHZ_CHANNEL)
+#define AT86RF215_DEFAULT_CHANNEL        (CONFIG_IEEE802154_DEFAULT_CHANNEL)
+#define AT86RF215_DEFAULT_SUBGHZ_CHANNEL (CONFIG_IEEE802154_DEFAULT_SUBGHZ_CHANNEL)
 /** @} */
 
 /**
  * @brief   Default TX power (0dBm)
  */
-#define AT86RF215_DEFAULT_TXPOWER       (IEEE802154_DEFAULT_TXPOWER)
+#define AT86RF215_DEFAULT_TXPOWER       (CONFIG_IEEE802154_DEFAULT_TXPOWER)
 
 /**
  * @name    Flags for device internal states (see datasheet)

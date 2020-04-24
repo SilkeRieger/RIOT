@@ -55,6 +55,11 @@ ifneq (,$(filter at24mac,$(USEMODULE)))
   USEMODULE += at24cxxx
 endif
 
+ifneq (,$(filter at25xxx,$(USEMODULE)))
+  FEATURES_REQUIRED += periph_spi
+  USEMODULE += xtimer
+endif
+
 ifneq (,$(filter at30tse75x,$(USEMODULE)))
   USEMODULE += xtimer
   FEATURES_REQUIRED += periph_i2c
@@ -292,6 +297,14 @@ ifneq (,$(filter hih6130,$(USEMODULE)))
   FEATURES_REQUIRED += periph_i2c
 endif
 
+ifneq (,$(filter hmc5883l,$(USEMODULE)))
+  FEATURES_REQUIRED += periph_i2c
+endif
+
+ifneq (,$(filter hmc5883l_int,$(USEMODULE)))
+  FEATURES_REQUIRED += periph_gpio_irq
+endif
+
 ifneq (,$(filter hts221,$(USEMODULE)))
   FEATURES_REQUIRED += periph_i2c
 endif
@@ -469,9 +482,11 @@ endif
 ifneq (,$(filter mrf24j40m%,$(USEMODULE)))
   USEMODULE += mrf24j40
 
-  # all modules but mrf24j40ma have an external PA
-  ifeq (,$(filter mrf24j40ma,$(USEMODULE)))
-    CFLAGS += -DMRF24J40_USE_EXT_PA_LNA
+  ifndef CONFIG_KCONFIG_MODULE_MRF24J40
+    # all modules but mrf24j40ma have an external PA
+    ifeq (,$(filter mrf24j40ma,$(USEMODULE)))
+      CFLAGS += -DCONFIG_MRF24J40_USE_EXT_PA_LNA
+    endif
   endif
 endif
 
@@ -779,14 +794,17 @@ ifneq (,$(filter ws281x_%,$(USEMODULE)))
 endif
 
 ifneq (,$(filter ws281x,$(USEMODULE)))
-  FEATURES_OPTIONAL += arch_avr8
-  FEATURES_OPTIONAL += arch_native
+  FEATURES_REQUIRED_ANY += arch_avr8|arch_esp32|arch_native
+
   ifeq (,$(filter ws281x_%,$(USEMODULE)))
     ifneq (,$(filter arch_avr8,$(FEATURES_USED)))
       USEMODULE += ws281x_atmega
     endif
     ifneq (,$(filter arch_native,$(FEATURES_USED)))
       USEMODULE += ws281x_vt100
+    endif
+    ifneq (,$(filter arch_esp32,$(FEATURES_USED)))
+      USEMODULE += ws281x_esp32
     endif
   endif
   ifneq (,$(filter ws281x_atmega,$(USEMODULE)))

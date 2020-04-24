@@ -101,35 +101,9 @@ static kernel_pid_t _suit_coap_pid;
 ssize_t coap_subtree_handler(coap_pkt_t *pkt, uint8_t *buf, size_t len,
                              void *context)
 {
-    uint8_t uri[NANOCOAP_URI_MAX];
-
-    unsigned method_flag = coap_method2flag(coap_get_code_detail(pkt));
-
-    if (coap_get_uri_path(pkt, uri) > 0) {
-        coap_resource_subtree_t *subtree = context;
-
-        for (unsigned i = 0; i < subtree->resources_numof; i++) {
-            const coap_resource_t *resource = &subtree->resources[i];
-
-            if (!(resource->methods & method_flag)) {
-                continue;
-            }
-
-            int res = coap_match_path(resource, uri);
-            if (res > 0) {
-                continue;
-            }
-            else if (res < 0) {
-                break;
-            }
-            else {
-                return resource->handler(pkt, buf, len, resource->context);
-            }
-        }
-    }
-
-    return coap_reply_simple(pkt, COAP_CODE_INTERNAL_SERVER_ERROR, buf,
-                             len, COAP_FORMAT_TEXT, NULL, 0);
+    coap_resource_subtree_t *subtree = context;
+    return coap_tree_handler(pkt, buf, len, subtree->resources,
+                             subtree->resources_numof);
 }
 
 static inline uint32_t _now(void)
@@ -162,11 +136,11 @@ static ssize_t _nanocoap_request(sock_udp_t *sock, coap_pkt_t *pkt, size_t len)
 
     /* TODO: timeout random between between ACK_TIMEOUT and (ACK_TIMEOUT *
      * ACK_RANDOM_FACTOR) */
-    uint32_t timeout = COAP_ACK_TIMEOUT * US_PER_SEC;
+    uint32_t timeout = CONFIG_COAP_ACK_TIMEOUT * US_PER_SEC;
     uint32_t deadline = deadline_from_interval(timeout);
 
     /* add 1 for initial transmit */
-    unsigned tries_left = COAP_MAX_RETRANSMIT + 1;
+    unsigned tries_left = CONFIG_COAP_MAX_RETRANSMIT + 1;
 
     while (tries_left) {
         if (res == -EAGAIN) {

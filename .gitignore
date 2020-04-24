@@ -11,10 +11,13 @@ doc/doxygen/*.tmp
 *bin
 # Build directory
 /build
+# AFL findings
+fuzzing/**/findings/
 # Backup files
 *~
 *.orig
 .*.swp
+\#*\#
 cachegrind.out*
 # Eclipse workspace files
 .project

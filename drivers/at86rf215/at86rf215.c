@@ -25,6 +25,7 @@
 #include "unaligned.h"
 #include "at86rf215_internal.h"
 #include "at86rf215_netdev.h"
+#include "kernel_defines.h"
 
 #define ENABLE_DEBUG (0)
 #include "debug.h"
@@ -71,7 +72,7 @@ void at86rf215_reset_and_cfg(at86rf215_t *dev)
         dev->netdev.chan = AT86RF215_DEFAULT_CHANNEL;
     }
 
-    dev->netdev.pan = IEEE802154_DEFAULT_PANID;
+    dev->netdev.pan = CONFIG_IEEE802154_DEFAULT_PANID;
 
     /* set default options */
     dev->retries_max      = AT86RF215_RETRIES_MAX_DEFAULT;
@@ -115,13 +116,12 @@ void at86rf215_reset(at86rf215_t *dev)
     }
 
     /* disable clock output */
-#if AT86RF215_USE_CLOCK_OUTPUT == 0
+if (!IS_ACTIVE(CONFIG_AT86RF215_USE_CLOCK_OUTPUT)){
     at86rf215_reg_write(dev, RG_RF_CLKO, 0);
-#endif
-
+}
     /* allow to configure board-specific trim */
-#ifdef AT86RF215_TRIM_VAL
-    at86rf215_reg_write(dev, RG_RF_XOC, AT86RF215_TRIM_VAL | XOC_FS_MASK);
+#ifdef CONFIG_AT86RF215_TRIM_VAL
+    at86rf215_reg_write(dev, RG_RF_XOC, CONFIG_AT86RF215_TRIM_VAL | XOC_FS_MASK);
 #endif
 
     /* enable TXFE & RXFE IRQ */
@@ -206,6 +206,8 @@ static bool _tx_ongoing(at86rf215_t *dev)
         return true;
     }
 
+    /* we can still fill the TX buffer and queue TX
+       when in AT86RF215_STATE_RX_SEND_ACK */
     if (dev->state == AT86RF215_STATE_TX ||
         dev->state == AT86RF215_STATE_TX_WAIT_ACK) {
         return true;
@@ -237,7 +239,7 @@ static void _block_while_busy(at86rf215_t *dev)
     gpio_irq_enable(dev->params.int_pin);
 }
 
-void at86rf215_block_while_busy(at86rf215_t *dev)
+static void at86rf215_block_while_busy(at86rf215_t *dev)
 {
     if (_tx_ongoing(dev)) {
         DEBUG("[at86rf215] Block while TXing\n");

@@ -314,7 +314,7 @@
  *
  *     sock_udp_ep_t remote;
  *     remote.port = DTLS_DEFAULT_PORT;
- *     remote.netif = gnrc_netif_iter(NULL)->pid;   // only if GNRC_NETIF_NUMOF == 1
+ *     remote.netif = gnrc_netif_iter(NULL)->pid;   // only if gnrc_netif_highlander() returns true
  *
  *     sock_dtls_t dtls_sock;
  *     sock_dtls_session_t session;
@@ -380,7 +380,7 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ {.c}
  * sock_udp_ep_t remote;
  * remote.port = DTLS_DEFAULT_PORT;
- * remote.netif = gnrc_netif_iter(NULL)->pid;   // only if GNRC_NETIF_NUMOF == 1
+ * remote.netif = gnrc_netif_iter(NULL)->pid;   // only if gnrc_netif_highlander() returns true
  *
  * if (!ipv6_addr_from_str((ipv6_addr_t *)remote.addr.ipv6, SERVER_ADDR)) {
  *     puts("Error parsing destination address");
@@ -605,6 +605,49 @@ void sock_dtls_session_destroy(sock_dtls_t *sock, sock_dtls_session_t *remote);
  */
 ssize_t sock_dtls_recv(sock_dtls_t *sock, sock_dtls_session_t *remote,
                        void *data, size_t maxlen, uint32_t timeout);
+
+/**
+ * @brief Decrypts and provides stack-internal buffer space containing a
+ *        message from a remote peer.
+ *
+ * @param[in] sock      DTLS sock to use.
+ * @param[out] remote   Remote DTLS session of the received data.
+ *                      Cannot be NULL.
+ * @param[out] data     Pointer to a stack-internal buffer space containing the
+ *                      received data.
+ * @param[in,out] buf_ctx   Stack-internal buffer context. If it points to a
+ *                      `NULL` pointer, the stack returns a new buffer space for
+ *                      a new packet. If it does not point to a `NULL` pointer,
+ *                      an existing context is assumed to get a next segment in
+ *                      a buffer.
+ * @param[in] timeout   Receive timeout in microseconds.
+ *                      If 0 and no data is available, the function returns
+ *                      immediately.
+ *                      May be SOCK_NO_TIMEOUT to wait until data
+ *                      is available.
+ *
+ * @experimental    This function is quite new, not implemented for all stacks
+ *                  yet, and may be subject to sudden API changes. Do not use in
+ *                  production if this is unacceptable.
+ *
+ * @note Function may block if data is not available and @p timeout != 0
+ *
+ * @note    Function blocks if no packet is currently waiting.
+ *
+ * @return  The number of bytes received on success. May not be the complete
+ *          payload. Continue calling with the returned @p buf_ctx to get more
+ *          buffers until result is 0 or an error.
+ * @return  0, if no received data is available, but everything is in order.
+ *          If @p buf_ctx was provided, it was released.
+ * @return  -EADDRNOTAVAIL, if the local endpoint of @p sock is not set.
+ * @return  -EAGAIN, if @p timeout is `0` and no data is available.
+ * @return  -EINVAL, if @p remote is invalid or @p sock is not properly
+ *          initialized (or closed while sock_dtls_recv() blocks).
+ * @return  -ENOMEM, if no memory was available to receive @p data.
+ * @return  -ETIMEDOUT, if @p timeout expired.
+ */
+ssize_t sock_dtls_recv_buf(sock_dtls_t *sock, sock_dtls_session_t *remote,
+                           void **data, void **buf_ctx, uint32_t timeout);
 
 /**
  * @brief Encrypts and sends a message to a remote peer
