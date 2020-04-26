@@ -27,7 +27,7 @@
 #include "od.h"
 #include "fmt.h"
 
-#define ENABLE_DEBUG (0)
+#define ENABLE_DEBUG (1)
 #include "debug.h"
 
 static bool _proxied = false;
@@ -367,22 +367,24 @@ int gcoap_cli_cmd(int argc, char **argv)
     /* ping must be confirmable */
     unsigned msg_type = (!code_pos ? COAP_TYPE_CON : COAP_TYPE_NON);
     unsigned is_observe = 0;
-    	if (argc > apos) {
-    		while(apos < argc) {
-    			if (strcmp(argv[apos], "-c") == 0) {
-    				msg_type = COAP_TYPE_CON;
-    				apos++;
-    				continue;
-    			}
-    			/* Check, if observing option is set */
-    			else if (strcmp(argv[apos], "-o") == 0) {
-    				is_observe = 1;
-    				apos++;
-    				continue;
-    			}
-    			break;
-    		}
-    	}
+    /* Iterate over possible switches */
+	if (argc > apos) {
+		while(apos < argc) {
+			/* Check for "-c" confirmable switch */
+			if (strcmp(argv[apos], "-c") == 0) {
+				msg_type = COAP_TYPE_CON;
+				apos++;
+				continue;
+			}
+			/* Check for "-o" observe switch */
+			else if (strcmp(argv[apos], "-o") == 0) {
+				is_observe = 1;
+				apos++;
+				continue;
+			}
+			break;
+		}
+	}
 
     if (((argc == apos + 2) && (code_pos == 0)) ||    /* ping */
         ((argc == apos + 3) && (code_pos == 1)) ||    /* get */
@@ -402,7 +404,7 @@ int gcoap_cli_cmd(int argc, char **argv)
             gcoap_req_init(&pdu, &buf[0], CONFIG_GCOAP_PDU_BUF_SIZE, code_pos, NULL);
         }
         else{
-        	gcoap_req_init_observe(&pdu, &buf[0], CONFIG_GCOAP_PDU_BUF_SIZE, code_pos + 1, argv[apos + 2], is_observe);
+        	gcoap_req_init_observe(&pdu, &buf[0], CONFIG_GCOAP_PDU_BUF_SIZE, code_pos, uri, is_observe);
 
         }
         coap_hdr_set_type(pdu.hdr, msg_type);
