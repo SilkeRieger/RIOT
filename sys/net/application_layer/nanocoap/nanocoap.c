@@ -148,11 +148,10 @@ int coap_parse(coap_pkt_t *pkt, uint8_t *buf, size_t len)
     }
 #endif
 
-    DEBUG("coap pkt parsed. code=%u detail=%u payload_len=%u, nopts=%u, 0x%02x\n",
+    DEBUG("coap pkt parsed. code=%u detail=%u payload_len=%u, nopts=%u, 0x%02x, obs=%d \n",
           coap_get_code_class(pkt),
           coap_get_code_detail(pkt),
-          pkt->payload_len, option_count, hdr->code);
-
+          pkt->payload_len, option_count, hdr->code, coap_has_observe(pkt));
     return 0;
 }
 

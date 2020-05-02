@@ -1656,7 +1656,7 @@ static inline void coap_clear_observe(coap_pkt_t *pkt)
  */
 static inline uint32_t coap_get_observe(coap_pkt_t *pkt)
 {
-    return pkt->observe_value;
+	return pkt->observe_value;
 }
 /**@}*/
 #endif

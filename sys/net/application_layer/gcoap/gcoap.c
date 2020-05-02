@@ -210,6 +210,9 @@ empty_as_response:
                         memo->resp_handler(memo, &pdu, &remote);
                     }
 
+                    if (coap_has_observe(&pdu) == 1) {
+                    	printf("Observe gesetzt! \n");
+                    }
                     if (memo->send_limit >= 0) {        /* if confirmable */
                         *memo->msg.data.pdu_buf = 0;    /* clear resend PDU buffer */
                     }
@@ -540,6 +543,7 @@ static int _find_observer(sock_udp_ep_t **observer, sock_udp_ep_t *remote)
         }
         else if (sock_udp_ep_equal(&_coap_state.observers[i], remote)) {
             *observer = &_coap_state.observers[i];
+            printf("find register observer \n"); // Silke
             break;
         }
     }
@@ -937,6 +941,7 @@ size_t gcoap_obs_send(const uint8_t *buf, size_t len,
     _find_obs_memo_resource(&memo, resource);
 
     if (memo) {
+        printf("gcoap_obs_send: Notification wird gesendet! \n"); // Silke
         ssize_t bytes = sock_udp_send(&_sock, buf, len, memo->observer);
         return (size_t)((bytes > 0) ? bytes : 0);
     }

@@ -602,6 +602,19 @@ extern "C" {
 /** @} */
 
 /**
+ * @brief Max age for notification both on server-side and client-side.
+ *
+ * On server-side after this value expires the server MAY send a new notification to an observer to keep the client in sync (freshness).
+ *
+ * @see RFC 7641 4.3.1
+ *
+ * @author Silke Rieger
+ */
+#define CONFIG_GCOAP_OBS_NOTIFICATION_MAX_AGE	(30)
+
+
+
+/**
  * @brief Stack size for module thread
  */
 #ifndef GCOAP_STACK_SIZE

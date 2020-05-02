@@ -380,6 +380,13 @@ int gcoap_cli_cmd(int argc, char **argv)
 			else if (strcmp(argv[apos], "-o") == 0) {
 				is_observe = 1;
 				apos++;
+				if (strcmp(argv[apos], "0") == 0) {
+					printf("REGISTER! \n");
+					apos++;
+				} else if (strcmp(argv[apos], "1") == 0) {
+					printf("DEREGISTER! \n");
+					apos++;
+				}
 				continue;
 			}
 			break;
@@ -404,7 +411,7 @@ int gcoap_cli_cmd(int argc, char **argv)
             gcoap_req_init(&pdu, &buf[0], CONFIG_GCOAP_PDU_BUF_SIZE, code_pos, NULL);
         }
         else{
-        	gcoap_req_init_observe(&pdu, &buf[0], CONFIG_GCOAP_PDU_BUF_SIZE, code_pos, uri, is_observe);
+        	gcoap_req_init_observe(&pdu, &buf[0], CONFIG_GCOAP_PDU_BUF_SIZE, code_pos, uri, is_observe); // Silke
 
         }
         coap_hdr_set_type(pdu.hdr, msg_type);
